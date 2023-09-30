@@ -15,17 +15,18 @@ class Location {
 private:
     std::string name, description;
     bool hasBeenVisited = false;
-    std::map<Direction, Location> neighbors;
-    std::vector<NPC> peepsThatLiveHere;
-    std::vector<Item> itemsThatLiveHere;
+    std::map<Direction, Location> neighbors = {};
+    std::vector<NPC> peepsThatLiveHere = {};
+    std::vector<Item> itemsThatLiveHere = {};
     std::string DirectionNames[11];
 
 public:
 
     //Constructor
     Location(std::string name, std::string description, std::vector<NPC> peepsThatLiveHere = {},
-             std::vector<Item> itemsThatLiveHere = {}, std::map<Direction, Location> neighbors = {});
-
+             std::vector<Item> itemsThatLiveHere = {});
+    //Location(std::string name, std::string description);
+    Location();
 
     //Getter for the neighbors
     std::map<Direction, Location> getNeighbors();

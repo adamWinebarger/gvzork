@@ -2,10 +2,11 @@
 #include <string>
 #include <vector>
 
-#include "item.h" // Include the item header file
-#include "npc.hpp"
-#include "direction.h"
-#include "location.hpp"
+// #include "item.h" // Include the item header file
+// #include "npc.hpp"
+// #include "direction.h"
+// #include "location.hpp"
+#include "game.h"
 
 // as of right now here to test item
 
@@ -17,10 +18,10 @@ int main() {
         NPC npc1("Gnome A", "A simple gnome, eh?",
                 {"How do you do?", "I'm a simple Gnome", "I don't have a name yet. But maybe I'll get one soon", "Have a nice day"}
         );
-        NPC npc2("Ant A", "A nameless giant ant");//,
-        //{"sktt sktt sktt", "skitter skitter", "I'm just kidding. I can understand you"}
-        //);
-        Item item2("Book", "its a large book", 0, 10);
+        NPC npc2("Ant A", "A nameless giant ant",
+        {"sktt sktt sktt", "skitter skitter", "I'm just kidding. I can understand you"}
+        );
+        //Item item2("Book", "its a large book", 0, 10);
         // item item3("pizza","food",220,20);
         // // You can now use the accessors to retrieve information about the item
         // std::cout << "Name: " << item1.getName() << std::endl;
@@ -38,18 +39,20 @@ int main() {
         // std::cout << "Calories: " << item3.getCalories() << std::endl;
         // std::cout << "Weight: " << item3.getWeight() << std::endl;
 
-        cout << npc1 << endl;
-        //cout << npc1 << endl;
+        // cout << npc1 << endl;
+        // //cout << npc1 << endl;
+        //
+        // do {
+        //        cout << npc1.getCurrentNPCMessage() << endl;
+        // } while (npc1.getMessageNumber() != 0);
+        //
+        // Direction d = East;
+        // cout << d << endl;
+        //
+        // Location l("The b's", "This is a starter location");
+        // cout << l << endl;
 
-        do {
-               cout << npc1.getCurrentNPCMessage() << endl;
-        } while (npc1.getMessageNumber() != 0);
-
-        Direction d = East;
-        cout << d << endl;
-
-        Location l("The b's", "This is a starter location");
-        cout << l << endl;
+        Game();
 
 
         //cin.get();

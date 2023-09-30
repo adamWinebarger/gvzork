@@ -9,7 +9,7 @@ class Item{
 public:
         //item(); //We might not need the default if our values have to be initialized. If you want to leave it in, then we should pre-initialize our variables for default constructors
         //// Constructor to initialize the attributes
-        Item(std::string name, std::string description, int calories = 0, float weight = 0.0);
+        Item(std::string name,std::string description, int calories = 0, float weight = 0.0);
 
         //accessors
         std::string getName();
