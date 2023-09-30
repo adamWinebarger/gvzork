@@ -6,6 +6,7 @@ class NPC {
 public:
     //Constructor
     NPC(std::string name, std::string description, std::vector<std::string> messages);
+    NPC(std::string name, std::string description);
 
     //use input param to determine which string (description or name) we want to return
     std::string getString(std::string which);
@@ -24,10 +25,16 @@ private:
     std::vector<std::string> messages;
 };
 
-NPC::NPC(std::string name, std::string description, std::vector<std::string> messages = {}) {
+//Constructors
+NPC::NPC(std::string name, std::string description, std::vector<std::string> messages) {
     this->name = name;
     this->description = description;
     this->messages = messages;
+}
+
+NPC::NPC(std::string name, std::string description) {
+    this->name = name;
+    this->description = description;
 }
 
 //use input param to determine which string (description or name) we want to return

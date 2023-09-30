@@ -14,8 +14,9 @@ public:
 
     //Constructor
     Location(std::string name, std::string description, std::vector<NPC> peepsThatLiveHere,
-             std::vector<Item> itemsThatLiveHere, std::map<Direction, Location> neighbors);
-    Location(std::string name, std::string description);
+             std::vector<Item> itemsThatLiveHere);
+    //Location(std::string name, std::string description);
+    Location();
 
     //Getter for the neighbors
     std::map<Direction, Location> getNeighbors();
@@ -35,22 +36,32 @@ public:
 private:
     std::string name, description;
     bool hasBeenVisited = false;
-    std::map<Direction, Location> neighbors;
-    std::vector<NPC> peepsThatLiveHere;
-    std::vector<Item> itemsThatLiveHere;
+    std::map<Direction, Location> neighbors = {};
+    std::vector<NPC> peepsThatLiveHere = {};
+    std::vector<Item> itemsThatLiveHere = {};
     std::string DirectionNames[11] = { "North", "Northeast", "East", "Southeast", "South",
          "Southwest", "West", "Northwest", "Secret", "Portal", "Portal"};
 };
 
 Location::Location(std::string name, std::string description, std::vector<NPC> peepsThatLiveHere = {},
-             std::vector<Item> itemsThatLiveHere = {}, std::map<Direction, Location> neighbors = {})
+    std::vector<Item> itemsThatLiveHere = {})
 {
     this->name = name;
     this->description = description;
-    this->neighbors = neighbors;
+    //this->neighbors = neighbors;
     this->peepsThatLiveHere = peepsThatLiveHere;
     this->itemsThatLiveHere = itemsThatLiveHere;
 }
+
+Location::Location() {
+
+}
+
+// Location::Location(std::string name, std::string description)
+// {
+//     this->name = name;
+//     this->description = description;
+// }
 
 
 std::map<Direction, Location> Location::getNeighbors() { return this->neighbors; }

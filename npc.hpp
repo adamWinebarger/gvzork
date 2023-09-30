@@ -10,7 +10,8 @@ class NPC {
 
 public:
     //Constructor
-    NPC(std::string name, std::string description, std::vector<std::string> messages = {});
+    NPC(std::string name, std::string description, std::vector<std::string> messages);
+    NPC(std::string name, std::string description);
 
     std::string getString(std::string which); //use input param to determine which string (description or name) we want to return
     std::string getCurrentNPCMessage();
