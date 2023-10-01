@@ -31,7 +31,7 @@ public:
     void doSetup();
     map<string, Item> itemSetup();
     map<string, NPC> NPCSetup();
-    void locationSetup();
+    void locationSetup(map<string, NPC> npcList, map<string, Item> itemList);
 };
 
 //May as well just do setup here
@@ -59,7 +59,7 @@ void Game::doSetup() {
     map<string, Item> inGameItems = itemSetup();
     cout << inGameItems.at("Banana") << endl;
     map<string, NPC> npcs = NPCSetup();
-    locationSetup();
+    locationSetup(npcs, inGameItems);
 
 }
 
@@ -96,12 +96,18 @@ map<string, NPC> Game::NPCSetup() {
     )});
     npcList.insert({"MagicalElf", NPC("Magical Elf", "It's the magical elf that's going to save the school", {
         "Hello there!", "I'm the magaical elf of the woods behind Grand Valley", "You can call me Tim.", "Or don't. Your choice",
-
     })});
+
+
+    npcList.insert({"Guy", NPC("Some Guy","Just a guy",{"How do you do?", "Something something something"})});
+    npcList.insert({"NPC2", NPC("NPC2","yep",{"hi", "See ya"})});
+    npcList.insert({"NPC3", NPC("NPC3","something",{"Hello", "Goodbye"})});
+    npcList.insert({"NPC4", NPC("NPC4","nope",{"Leave me", "get out of here"})});
+    npcList.insert({"NPC5", NPC("NPC5","Tall",{"sup", "How it going"})});
 
     return npcList;
 }
 
-void Game::locationSetup() {
+void Game::locationSetup(map<string, NPC> npcList, map<string, Item> itemList) {
 
 }

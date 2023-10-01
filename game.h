@@ -33,7 +33,7 @@ public:
     void doSetup();
     std::map<std::string, Item> itemSetup();
     std::map<std::string, NPC> NPCSetup();
-    void locationSetup();
+    void locationSetup(std::map<std::string, NPC> npcList, std::map<std::string, Item> itemList);
 };
 
 #endif
