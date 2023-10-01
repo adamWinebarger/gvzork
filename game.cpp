@@ -32,6 +32,20 @@ public:
     map<string, Item> itemSetup();
     map<string, NPC> NPCSetup();
     void locationSetup(map<string, NPC> npcList, map<string, Item> itemList);
+    map<string, void(*)(vector<string>)> setupCommand();
+    Location randomLocation();
+    void play();
+
+    //Command methods
+    void show_help();
+    void talk(string target);
+    void meet(vector<string> target);
+    void take(vector<string> target);
+    void give(vector<string> target);
+    void go(vector<string> target);
+    void show_items(vector<string> target);
+    void look(vector<string> target);
+    void quit(vector<string> target);
 };
 
 //May as well just do setup here
@@ -72,11 +86,16 @@ map<string, Item> Game::itemSetup() {
         inGameItems.insert({"Cake", Item("Cake", "The cake is a lie", 5.0, 300)});
         inGameItems.insert({"Green Herb", Item("Green Herb", "Grown locally in Raccoon City", 0.3, 10)});
         inGameItems.insert({"Mushroom", Item("Mushroom", "May make you Super", 1.0, 100)});
-        inGameItems.insert({"Sword", Item("Master Sword", "Super sharp", 15.0)});
+        inGameItems.insert({"Sword", Item("Master Sword", "Super sharp, not very edible", 15.0)});
         inGameItems.insert({"Rock", Item("Rock", "Its not just a boulder Its a rock", 10.0)});
         inGameItems.insert({"Ambrosia", Item("Ambrosia", "Consumed by the Gods", 1.0, 400)});
         inGameItems.insert({"Relic", Item("Holy Relic", "It belongs in a museum", 25.0)});
         inGameItems.insert({"Water", Item("Water", "Needed for life", 0.5)});
+        inGameItems.insert({"MRE", Item("MRE", "Very filling. But it'll be a while before you poop again", 2.0, 1500)});
+        inGameItems.insert({"CoffeeGrounds", Item("Coffee grounds", "Used for coffee. Can be eaten raw if you really need a pick-me-up", 0.1, 15)});
+        inGameItems.insert({"WaterBottle", Item("Water bottle", "Sweet, delicious agua", 0.5)});
+        inGameItems.insert({"CoffeeMug", Item("Coffee Mug", "It's a mug. For coffee. Could probably used for other things too", 0.1)});
+        inGameItems.insert({"Coffee", Item("Coffee", "Refreshing, and it wakes you up. Guarunteed to make you poop in 20 minutes or less", 0.6, 250)});
 
     return inGameItems;
 }

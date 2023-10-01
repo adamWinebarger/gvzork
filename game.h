@@ -34,6 +34,20 @@ public:
     std::map<std::string, Item> itemSetup();
     std::map<std::string, NPC> NPCSetup();
     void locationSetup(std::map<std::string, NPC> npcList, std::map<std::string, Item> itemList);
+
+    //Command methods
+    void show_help();
+    void talk(std::string target);
+    void meet(std::vector<std::string> target);
+    void take(std::vector<std::string> target);
+    void give(std::vector<std::string> target);
+    void go(std::vector<std::string> target);
+    void show_items(std::vector<std::string> target);
+    void look(std::vector<std::string> target);
+    void quit(std::vector<std::string> target);
+
+    //Apparently we need two additional commands.
+
 };
 
 #endif
