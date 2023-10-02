@@ -2,6 +2,7 @@
 #define DIRECTION_H
 
 #include <iostream>
+#include <map>
 
     enum Direction {
         North,

@@ -21,11 +21,14 @@ private:
     //Fucking remember that because we just spent like 2 hours trying to chase down some phantom segfaults
     std::map<std::string, Command> commands = {};
     std::vector<Item> playerInventory ={};
-    int inventoryWeight = 0;
+    float inventoryWeight = 0.0;
     std::vector<Location> locationsThatExistInTheWorld = {};
     Location currentLocation;
     int caloriesFedToTheElf = 0;
     bool gameStillInProgress = true, ateTheMRE = false, drankCoffee = false;
+    std::string DirectionNames[11];
+
+    std::string vector2String(std::vector<std::string> target);
 
 
 public:
@@ -47,7 +50,10 @@ public:
     void quit(std::vector<std::string> target);
 
     //Apparently we need two additional commands.
-
+    void teleport(std::vector<std::string> target);
+    //void inspect(std::vector<std::string> target);
+    void inventory(std::vector<std::string> target);
+    void make(std::vector<std::string> target);
 };
 
 #endif

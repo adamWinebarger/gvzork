@@ -18,7 +18,12 @@ public:
 
     int getMessageNumber();
 
+    std::string getName();
+    std::string getDescription();
+
     friend std::ostream & operator << (std::ostream &out, const NPC &npc);
+    bool operator == (const std::string &rhs);
+
 private:
     std::string name, description;
     int messageNumber = 0;
@@ -65,8 +70,20 @@ int NPC::getMessageNumber() {
     return this->messageNumber;
 }
 
+std::string NPC::getName() {
+    return this->name;
+}
+
+std::string NPC::getDescription() {
+    return this->description;
+}
+
 //here's our little overload operator.
 std::ostream & operator << (std::ostream &out, const NPC &npc) {
  out << npc.name << std::endl;
  return out;
+}
+
+bool NPC::operator == (const std::string &rhs) {
+    return this->name == rhs;
 }

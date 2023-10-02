@@ -31,17 +31,21 @@ public:
     //Getter for the neighbors
     std::map<Direction, Location> getNeighbors();
 
-    void setVisit(bool Value);
+    void setVisit();
     bool getVisit();
 
     void addLocation(Direction direction, Location location);
     void addNPC(NPC npc);
     void addItem(Item item);
+    void takeItem(Item item);
+
+    std::string getName();
 
     std::vector<NPC> getNPCs();
     std::vector<Item> getItems();
 
-    friend std::ostream & operator << (std::ostream &out, const Location &location);
+    friend std::ostream & operator << (std::ostream &out, const Location location);
+
 };
 
 #endif

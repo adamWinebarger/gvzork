@@ -35,6 +35,7 @@ public:
                 and that will print out the item name... so that's pretty neat. Did we cover this in class that day that I was zoned out?
         */
         friend std::ostream & operator << (std::ostream &out, const Item &item);
+        bool operator == (const std::string &rhs);
 
 private:
         std::string name;

@@ -34,6 +34,7 @@ public:
         */
 
         friend std::ostream & operator << (std::ostream &out, const Item &item);
+        bool operator == (const std::string &rhs);
 
 private:
         std::string name;
@@ -101,4 +102,8 @@ void Item::setWeight(float weight) {
 std::ostream & operator << (std::ostream &out, const Item &item) {
         out << item.name << "(" << item.calories << " calories) - " << item.weight << " lb - " << item.description << std::endl;
         return out;
+}
+
+bool Item::operator == (const std::string &rhs) {
+    return this->name == rhs;
 }

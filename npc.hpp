@@ -20,7 +20,13 @@ public:
 
     int getMessageNumber();
 
+    std::string getName();
+
+    std::string getDescription();
+
     friend std::ostream & operator << (std::ostream &out, const NPC &npc);
+
+    bool operator == (const std::string &rhs);
 
 private:
     std::string name, description;
