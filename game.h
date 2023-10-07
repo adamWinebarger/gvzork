@@ -48,6 +48,8 @@ private:
 
     Location theWoods, mackHall, padnos, clockTower, kirkhoff, library, superior, footBridge;
 
+    bool quitFired = false;
+
 
 public:
     Game();

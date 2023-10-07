@@ -6,7 +6,7 @@
 class Item{
 public:
         //item(); //We might not need the default if our values have to be initialized. If you want to leave it in, then we should pre-initialize our variables for default constructors
-        //// Constructor to initialize the attributes
+        //// Constructor to initialize the attributes. Setting it up this way essentially gives us 3 constructors for the price of 1
         Item(std::string name,std::string description, float weight = 0.0, int calories = 0);
 
         //accessors

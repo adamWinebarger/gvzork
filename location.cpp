@@ -36,13 +36,13 @@ public:
 
     std::string getName();
 
-    friend std::ostream & operator << (std::ostream &out, const Location &location);
+    friend std::ostream & operator << (std::ostream &out, const Location &location); //little helper method for cout
 
 
 private:
     std::string name, description;
     bool hasBeenVisited = false;
-    std::map<Direction, std::reference_wrapper<Location>> neighbors = {};
+    std::map<Direction, std::reference_wrapper<Location>> neighbors = {}; //Yeah, we're going to use an enum for the key to neighbors
     std::vector<NPC> peepsThatLiveHere = {};
     std::vector<Item> itemsThatLiveHere = {};
     std::string DirectionNames[11] = { "North", "Northeast", "East", "Southeast", "South",
@@ -79,10 +79,14 @@ void Location::addLocation(Direction direction, Location& location)
 {
     // if (this->neighbors.find(direction) == this->neighbors.end()) {
     //     //Throw an exception here
+    if (direction > 10 || direction < 0)
+        throw std::out_of_range("Invalid direction detected"); //theoretically unreachable
     //     std::cout << "Something went wrong here" << std::endl;
     //     return;
     // }
     //this->neighbors.insert(std::make_pair(direction, location));
+    if (this->neighbors.count(direction)) //this one's a bit more reachable. Basically makes sure you're not trying to input the same direction twice
+        throw std::invalid_argument("Neighbor already exists in that direction");
 
     //std::cout << location << std::endl;
     this->neighbors.insert(std::make_pair(direction, std::ref(location)));
@@ -132,6 +136,7 @@ std::string Location::getName()
 }
 
 
+//This will make it so we can print our class using cout
 std::ostream & operator << (std::ostream &out, const Location &location) {
     out << location.name << " - " << location.description << std::endl << std::endl
         << "You see the following NPCs: " << std::endl;
@@ -143,7 +148,7 @@ std::ostream & operator << (std::ostream &out, const Location &location) {
 
     out << std::endl << "You see the following items: " << std::endl;
 
-    if (location.itemsThatLiveHere.size() > 0) {
+    if (location.itemsThatLiveHere.size() > 0) { //set this up to print different based on whether there's items in the lcoation
         for (int j = 0; j < location.itemsThatLiveHere.size(); j++)
             out << "\t- " << location.itemsThatLiveHere[j] << std::endl;
     } else
@@ -160,7 +165,7 @@ std::ostream & operator << (std::ostream &out, const Location &location) {
         }
         out << std::endl;
     } else {
-        out << "Where the hell even are we?" << std::endl;
+        out << "Where the hell even are we?" << std::endl; //catchment for when we were building these early on. Should be unreachable now.
     }
 
     return out;

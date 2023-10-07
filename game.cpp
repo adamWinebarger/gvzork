@@ -43,6 +43,7 @@ private:
          "southwest", "west", "northwest", "secret", "portal", "portal"};
 
     std::string vector2String(std::vector<std::string> target);
+    bool quitFired = false;
 
     //Our locations so that way we can keep not in the stack
     Location theWoods, mackHall, padnos, clockTower, kirkhoff, library, superior, footBridge;
@@ -123,10 +124,13 @@ void Game::playGame() {
     std::string input = "banana";
     std::vector<std::string> comp;
 
+    //Basically using a do-while loop to keep the game taking commands until the victory condition or the quit condition is met
+    //Since we wrote out the quit message in the quit function, we'll let that handle there and then just have the victory message print
+    // if quitefired is false
     do {
         getline(std::cin, input);
-        boost::trim_left(input);
-        input = (input.length() >= 1) ? input : "dumb";
+        boost::trim_left(input);    //prevents an all-spaces input from segfaulting the program
+        input = (input.length() >= 1) ? input : "dumb"; //sends you to a nice function of the same name if you try it
         std::istringstream ss(input);
         for (std::string str; ss >> str; )
             comp.push_back(str);
@@ -134,6 +138,7 @@ void Game::playGame() {
         std::cout << "\n";
         //cout << command << endl;
         if (commands.find(command) == commands.end())
+            //Unrecognized command handler
             std::cout << "Unrecognized command: '" << command << "'. Please input 'help' or 'show_help' for a list of valid commands." << std::endl;
         else {
             comp.erase(comp.begin());
@@ -143,37 +148,42 @@ void Game::playGame() {
 
         comp.clear();
 
-    } while (caloriesFedToTheElf < 1000);
+    } while (caloriesFedToTheElf < 1000 && !quitFired);
 
-    std::cout << std::endl << std::endl << "\tVictory!!!" << std::endl << "Congratulations. You won the game!" << std::endl
+    if (!quitFired) {
+        std::cout << std::endl << std::endl << "\tVictory!!!" << std::endl << "Congratulations. You won the game!" << std::endl
         << "Now you have the opportunity to continue giving the university around $14k a year!" << std::endl
         << "Good job!" << std::endl;
+    }
 
 }
 
 std::map<std::string, Item> Game::itemSetup() {
     std::map<std::string, Item> inGameItems = {};
 
-        inGameItems.insert({"Banana", Item("Banana", "The fruit that's slightly shaped like a gun. Dispose of peels responsibly", 0.9, 3)});
-        //cout << inGameItems.at("Banana") << endl;;
-        inGameItems.insert({"GranolaBar", Item("Granola bar", "Dry AF, nutritionally questionable, a good snack to give to someone else", 0.1, 10)});
-        inGameItems.insert({"Cake", Item("Cake", "The cake is a lie", 5.0, 300)});
-        inGameItems.insert({"Green Herb", Item("Green Herb", "Grown locally in Raccoon City", 0.3, 10)});
-        inGameItems.insert({"Mushroom", Item("Mushroom", "May make you Super", 1.0, 100)});
-        inGameItems.insert({"Sword", Item("Master Sword", "Super sharp, not very edible", 15.0)});
-        inGameItems.insert({"Rock", Item("Rock", "Its not just a boulder Its a rock", 10.0)});
-        inGameItems.insert({"Ambrosia", Item("Ambrosia", "Consumed by the Gods", 1.0, 400)});
-        inGameItems.insert({"Relic", Item("Holy Relic", "It belongs in a museum", 25.0)});
-        inGameItems.insert({"MRE", Item("MRE", "Very filling. But it'll be a while before you poop again", 2.0, 1500)});
-        inGameItems.insert({"CoffeeGrounds", Item("Coffee grounds", "Used for coffee. Can be eaten raw if you really need a pick-me-up", 0.1, 15)});
-        inGameItems.insert({"WaterBottle", Item("Water bottle", "Sweet, delicious agua", 0.5)});
-        inGameItems.insert({"CoffeeMug", Item("Coffee Mug", "It's a mug. For coffee. Could probably used for other things too", 0.1)});
-        inGameItems.insert({"CoffeeMug2", Item("Coffee Mug", "It's a mug. For coffee. Could probably used for other things too... what's it doing out here?", 0.1)});
-        inGameItems.insert({"Coffee", Item("Coffee", "Refreshing, and it wakes you up. Guarunteed to make you poop in 20 minutes or less", 0.6, 250)});
-        inGameItems.insert({"WeirdSauce", Item("Weird Sauce", "A strange sauce given to you by the abortion crazies. Kinda looks like pizza sauce. Not sure I'd eat it", 0.4, 150)});
-        inGameItems.insert({"laptop", Item("Laptop", "It's an unsecured laptop. I'm sure no-one will miss it if you pocket it", 5.0)});
+    //Inserting into the map as a key-value pair. This will make putting the items into the locations
+    //easier later as we'll be able to call them with these handy little keys
 
-        return inGameItems;
+    inGameItems.insert({"Banana", Item("Banana", "The fruit that's slightly shaped like a gun. Dispose of peels responsibly", 0.9, 3)});
+    //cout << inGameItems.at("Banana") << endl;;
+    inGameItems.insert({"GranolaBar", Item("Granola bar", "Dry AF, nutritionally questionable, a good snack to give to someone else", 0.1, 10)});
+    inGameItems.insert({"Cake", Item("Cake", "The cake is a lie", 5.0, 300)});
+    inGameItems.insert({"Green Herb", Item("Green Herb", "Grown locally in Raccoon City", 0.3, 10)});
+    inGameItems.insert({"Mushroom", Item("Mushroom", "May make you Super", 1.0, 100)});
+    inGameItems.insert({"Sword", Item("Master Sword", "Super sharp, not very edible", 15.0)});
+    inGameItems.insert({"Rock", Item("Rock", "Its not just a boulder Its a rock", 10.0)});
+    inGameItems.insert({"Ambrosia", Item("Ambrosia", "Consumed by the Gods", 1.0, 400)});
+    inGameItems.insert({"Relic", Item("Holy Relic", "It belongs in a museum", 25.0)});
+    inGameItems.insert({"MRE", Item("MRE", "Very filling. But it'll be a while before you poop again", 2.0, 1500)});
+    inGameItems.insert({"CoffeeGrounds", Item("Coffee grounds", "Used for coffee. Can be eaten raw if you really need a pick-me-up", 0.1, 15)});
+    inGameItems.insert({"WaterBottle", Item("Water bottle", "Sweet, delicious agua", 0.5)});
+    inGameItems.insert({"CoffeeMug", Item("Coffee Mug", "It's a mug. For coffee. Could probably used for other things too", 0.1)});
+    inGameItems.insert({"CoffeeMug2", Item("Coffee Mug", "It's a mug. For coffee. Could probably used for other things too... what's it doing out here?", 0.1)});
+    inGameItems.insert({"Coffee", Item("Coffee", "Refreshing, and it wakes you up. Guarunteed to make you poop in 20 minutes or less", 0.6, 250)});
+    inGameItems.insert({"WeirdSauce", Item("Weird Sauce", "A strange sauce given to you by the abortion crazies. Kinda looks like pizza sauce. Not sure I'd eat it", 0.4, 150)});
+    inGameItems.insert({"laptop", Item("Laptop", "It's an unsecured laptop. I'm sure no-one will miss it if you pocket it", 5.0)});
+
+    return inGameItems;
 }
 
 //Our helper method for setting up the NPC's
@@ -629,7 +639,7 @@ void Game::look(std::vector<std::string> target) {
 
 void Game::quit(std::vector<std::string> target) {
     std::cout << "You failed to save the school." << std::endl << "Bettter luck next time, nerd" << std::endl;
-    exit(0);
+    quitFired = true;
 }
 
 //Our optional methods. These will be pretty good
