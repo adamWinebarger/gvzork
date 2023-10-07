@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <exception>
+#include <functional>
 
 #include "direction.h"
 #include "npc.hpp"
@@ -15,7 +16,7 @@ class Location {
 private:
     std::string name, description;
     bool hasBeenVisited = false;
-    std::map<Direction, Location> neighbors = {};
+    std::map<Direction, std::reference_wrapper<Location>> neighbors = {};
     std::vector<NPC> peepsThatLiveHere = {};
     std::vector<Item> itemsThatLiveHere = {};
     std::string DirectionNames[11];
@@ -29,12 +30,12 @@ public:
     Location();
 
     //Getter for the neighbors
-    std::map<Direction, Location> getNeighbors();
+    std::map<Direction, std::reference_wrapper<Location>> getNeighbors();
 
     void setVisit();
     bool getVisit();
 
-    void addLocation(Direction direction, Location location);
+    void addLocation(Direction direction, Location& location);
     void addNPC(NPC npc);
     void addItem(Item item);
     void takeItem(Item item);
@@ -44,7 +45,7 @@ public:
     std::vector<NPC> getNPCs();
     std::vector<Item> getItems();
 
-    friend std::ostream & operator << (std::ostream &out, const Location location);
+    friend std::ostream & operator << (std::ostream &out, const Location &location);
 
 };
 

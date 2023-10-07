@@ -8,77 +8,95 @@
 #include <exception>
 #include <bits/stdc++.h>
 #include<cstdlib>
+#include <functional>
+#include <cstring>
+
+#include <bits/stdc++.h>
+#include <boost/algorithm/string.hpp>
+
 
 #include "item.h"
 #include "location.hpp"
 #include "npc.hpp"
 #include "direction.h"
 
-typedef void (&Command)(std::vector<std::string>);
+//#define Command std::function<void(std::vector<std::string>)>
+//#define Command function<void(*)(std::vector<string>)>
+#define Command void(Game::*)(std::vector<std::string>)
 
-
-using namespace std;
-
-
+//typedef void (&Command)(std::vector<std::string>);
 
 class Game {
 private:
-    map<string, Command> commands = {};
+    Location emptyLoc;
+
+    std::map<std::string, Command> commands = {};
     std::vector<Item> playerItems = {};
     float inventoryWeight = 0.0;
-    std::vector<Location> locationsThatExistInTheWorld = {};
-    Location currentLocation;
+    std::vector<std::reference_wrapper<Location>> locationsThatExistInTheWorld = {};
+    std::reference_wrapper<Location> currentLocation = emptyLoc;
     int caloriesFedToTheElf = 0;
-    bool gameStillInProgress = true, ateTheMRE = false, drankCoffee = false;
-    std::string DirectionNames[11] = { "North", "Northeast", "East", "Southeast", "South",
-         "Southwest", "West", "Northwest", "Secret", "Portal", "Portal"};
+    bool gameStillInProgress = true, ateTheMRE = false, drankCoffee = false; //I don't think we're actually going to use these.
+    std::string DirectionNames[11] = { "north", "northeast", "east", "southeast", "south",
+         "southwest", "west", "northwest", "secret", "portal", "portal"};
 
-    string vector2String(vector<string> target);
+    std::string vector2String(std::vector<std::string> target);
+
+    //Our locations so that way we can keep not in the stack
+    Location theWoods, mackHall, padnos, clockTower, kirkhoff, library, superior, footBridge;
 
 public:
     Game();
     void doSetup();
-    map<string, Item> itemSetup();
-    map<string, NPC> NPCSetup();
-    void locationSetup(map<string, NPC> npcList, map<string, Item> itemList);
-    map<string, void(*)(vector<string>)> setupCommand();
+    std::map<std::string, Item> itemSetup();
+    std::map<std::string, NPC> NPCSetup();
+    void locationSetup(std::map<std::string, NPC> npcList, std::map<std::string, Item> itemList);
+    std::map<std::string, void(*)(std::vector<std::string>)> setupCommand();
+    void commandSetup();
+
+
     Location randomLocation();
     void play();
 
     //Command methods
-    void show_help();
-    void talk(string target);
-    void meet(vector<string> target);
-    void take(vector<string> target);
-    void give(vector<string> target);
-    void go(vector<string> target);
-    void show_items(vector<string> target);
-    void look(vector<string> target);
-    void quit(vector<string> target);
+    void show_help(std::vector<std::string> target);
+    void talk(std::vector<std::string> target);
+    void meet(std::vector<std::string> target);
+    void take(std::vector<std::string> target);
+    void give(std::vector<std::string> target);
+    void go(std::vector<std::string> target);
+    void show_items(std::vector<std::string> target);
+    void look(std::vector<std::string> target);
+    void quit(std::vector<std::string> target);
 
     //Bonus methods
-    void teleport(vector<string> target);
+    void teleport(std::vector<std::string> target);
     //void inspect(vector<string> target);
-    void inventory(vector<string> target);
-    void make(vector<string> target);
+    void inventory(std::vector<std::string> target);
+    void make(std::vector<std::string> target);
+    void dumb(std::vector<std::string> target);
+
+    void playGame();
 
 };
 
 //May as well just do setup here
 Game::Game()
 {
+
     srand(time(0)); //For our RNG's
     doSetup();
+    commandSetup();
 
 }
 
 void Game::doSetup() {
     //woodring = NPC("Prof. Woodring", "The Computer Science Professor");
     //Items
-    map<string, Item> inGameItems = itemSetup();
+    std::map<std::string, Item> inGameItems = itemSetup();
 
     //NPC
-    map<string, NPC> npcs = NPCSetup();
+    std::map<std::string, NPC> npcs = NPCSetup();
 
 
     locationSetup(npcs, inGameItems);
@@ -86,17 +104,52 @@ void Game::doSetup() {
     //meet({"Magical Elf"});
     //take({"Master Sword"});
     //inventory({});
-    cout << currentLocation << endl;;
-    cout << currentLocation.getVisit() << endl;
-    currentLocation.setVisit();
-    go({"North"});
-    go({"South"});
-    go({"North"});
-    go({"South"});
+    //cout << currentLocation << endl;;
+    //currentLocation.get().setVisit();
+    //go({"North"});
+    //go({"South"});
+    commandSetup();
+    playGame();
 }
 
-map<string, Item> Game::itemSetup() {
-    map<string, Item> inGameItems = {};
+void Game::playGame() {
+
+    std::cout << "\tGVZork" << std::endl;
+    look({});
+    //cout << endl;
+    std::string input = "banana";
+    std::vector<std::string> comp;
+
+    do {
+        getline(std::cin, input);
+        boost::trim_left(input);
+        input = (input.length() >= 1) ? input : "dumb";
+        std::istringstream ss(input);
+        for (std::string str; ss >> str; )
+            comp.push_back(str);
+        std::string command = comp[0];
+        std::cout << "\n";
+        //cout << command << endl;
+        if (commands.find(command) == commands.end())
+            std::cout << "Unrecognized command: '" << command << "'. Please input 'help' or 'show_help' for a list of valid commands." << std::endl;
+        else {
+            comp.erase(comp.begin());
+            //cout << comp[0];
+            ((this->*commands[command])(comp));
+        }
+
+        comp.clear();
+
+    } while (caloriesFedToTheElf < 1000);
+
+    std::cout << std::endl << std::endl << "\tVictory!!!" << std::endl << "Congratulations. You won the game!" << std::endl
+        << "Now you have the opportunity to continue giving the university around $14k a year!" << std::endl
+        << "Good job!" << std::endl;
+
+}
+
+std::map<std::string, Item> Game::itemSetup() {
+    std::map<std::string, Item> inGameItems = {};
 
         inGameItems.insert({"Banana", Item("Banana", "The fruit that's slightly shaped like a gun. Dispose of peels responsibly", 0.9, 3)});
         //cout << inGameItems.at("Banana") << endl;;
@@ -108,7 +161,6 @@ map<string, Item> Game::itemSetup() {
         inGameItems.insert({"Rock", Item("Rock", "Its not just a boulder Its a rock", 10.0)});
         inGameItems.insert({"Ambrosia", Item("Ambrosia", "Consumed by the Gods", 1.0, 400)});
         inGameItems.insert({"Relic", Item("Holy Relic", "It belongs in a museum", 25.0)});
-        inGameItems.insert({"Water", Item("Water", "Needed for life", 0.5)});
         inGameItems.insert({"MRE", Item("MRE", "Very filling. But it'll be a while before you poop again", 2.0, 1500)});
         inGameItems.insert({"CoffeeGrounds", Item("Coffee grounds", "Used for coffee. Can be eaten raw if you really need a pick-me-up", 0.1, 15)});
         inGameItems.insert({"WaterBottle", Item("Water bottle", "Sweet, delicious agua", 0.5)});
@@ -122,8 +174,8 @@ map<string, Item> Game::itemSetup() {
 }
 
 //Our helper method for setting up the NPC's
-map<string, NPC> Game::NPCSetup() {
-    map<string, NPC> npcList = {};
+std::map<std::string, NPC> Game::NPCSetup() {
+    std::map<std::string, NPC> npcList = {};
     npcList.insert({"Woodring", NPC("Prof. Woodring", "The CS prof from North Carolina",
         {"Howdy, I'm professor Woodring", "I'm from somewhere in North Carolina, but the developers didn't know where specifically from in the state",
             "But that doesn't matter because I'm here to give you the rundown about what's going on here right now.",
@@ -182,36 +234,36 @@ map<string, NPC> Game::NPCSetup() {
 }
 
 //This is how we'll be getting the locations into the world, as well as how we'll determine the currentLocation of the character
-void Game::locationSetup(map<string, NPC> npcList, map<string, Item> itemList) {
+void Game::locationSetup(std::map<std::string, NPC> npcList, std::map<std::string, Item> itemList) {
     //First we should probably set up our locations one at a time
-    Location theWoods("The Woods", "It's the woods behind Grand Valley's campus. Apparently there's a magical elf that live here. So that's pretty neat",
+    theWoods = Location("The Woods", "It's the woods behind Grand Valley's campus. Apparently there's a magical elf that live here. So that's pretty neat",
         {npcList.at("MagicalElf"), npcList.at("Guy")}, {itemList.at("Sword"),
             itemList.at("CoffeeMug2"), itemList.at("Rock")
         });
 
-    Location mackHall("Mack hall", "The computer science building. Just don't think about stealing any computers for the lab",
+    mackHall = Location("Mack hall", "The computer science building. Just don't think about stealing any computers for the lab",
         {npcList.at("Woodring"), npcList.at("NPC2"), npcList.at("NPC5")}, {itemList.at("GranolaBar"), itemList.at("WaterBottle"), itemList.at("Banana"), itemList.at("laptop")}
     );
 
-    Location padnos("Padnos Hall", "Whole lotta science going on here. This would be a great starter location... IF WE HAD ONE!",
+    padnos = Location("Padnos Hall", "Whole lotta science going on here. This would be a great starter location... IF WE HAD ONE!",
         {npcList.at("padnosProf"), npcList.at("NPC5")}, {itemList.at("Mushroom"), itemList.at("MRE"), itemList.at("laptop")}
     );
 
-    Location clockTower("The Clock Tower", "Anyone can rent this place out, apparently... Looks like today it's the abortion crazies again.",
+    clockTower = Location("The Clock Tower", "Anyone can rent this place out, apparently... Looks like today it's the abortion crazies again.",
         {npcList.at("abc1"), npcList.at("abc2"), npcList.at("abc3")}, {itemList.at("WeirdSauce")}
     );
 
-    Location kirkhoff("Kirkhoff hall", "Home of the vet's center and Panda express. Also, there's a pretty good coffee maker here",
+    kirkhoff = Location("Kirkhoff hall", "Home of the vet's center and Panda express. Also, there's a pretty good coffee maker here",
     {}, {itemList.at("CoffeeGrounds"), itemList.at("MRE"), itemList.at("Rock")}
     );
 
-    Location library("The Library", "Probably the weirdest library you'll ever see in your life", {}, {itemList.at("WaterBottle"), itemList.at("Banana"), itemList.at("GranolaBar")});
+    library = Location("The Library", "Probably the weirdest library you'll ever see in your life", {}, {itemList.at("WaterBottle"), itemList.at("Banana"), itemList.at("GranolaBar")});
 
-    Location superior("Superior hall", "A lot of art stuff happens here. Pretty sure one of the devs has a photography class in here",
+    superior = Location("Superior hall", "A lot of art stuff happens here. Pretty sure one of the devs has a photography class in here",
     {npcList.at("artProf"), npcList.at("NPC5")}, {itemList.at("Banana"), itemList.at("laptop"), itemList.at("GranolaBar")}
     );
 
-    Location footBridge("Footbridge", "The pedestrian bridge over the creek",
+    footBridge = Location("Footbridge", "The pedestrian bridge over the creek",
         {npcList.at("NPC5"), npcList.at("NPC4"), npcList.at("NPC3"), npcList.at("NPC2"), npcList.at("Guy")}, {}
     );
 
@@ -232,15 +284,18 @@ void Game::locationSetup(map<string, NPC> npcList, map<string, Item> itemList) {
     clockTower.addLocation(Southwest, library);
     clockTower.addLocation(South, kirkhoff);
     clockTower.addLocation(Southeast, superior);
+    clockTower.addLocation(OneWayPortal, mackHall);
 
     kirkhoff.addLocation(West, library);
     kirkhoff.addLocation(North, clockTower);
     kirkhoff.addLocation(Northeast, footBridge);
     kirkhoff.addLocation(Southeast, superior);
+    kirkhoff.addLocation(TwoWayPortal, mackHall);
 
     theWoods.addLocation(Northwest, mackHall);
     theWoods.addLocation(West,padnos);
     theWoods.addLocation(Southwest, superior);
+    theWoods.addLocation(OneWayPortal, footBridge);
 
     footBridge.addLocation(North, mackHall);
     footBridge.addLocation(Northwest, padnos);
@@ -269,74 +324,127 @@ void Game::locationSetup(map<string, NPC> npcList, map<string, Item> itemList) {
     //I was going to make a standalone function that decided the random location that the play will
     //start in. But now I'm kind of thinking that we should just do it in here.
     //currentLocation = locationsThatExistInTheWorld[rand() % locationsThatExistInTheWorld.size()];
-    currentLocation = clockTower;
-    currentLocation.setVisit();
+    int locationInteger = rand() % locationsThatExistInTheWorld.size();
+    locationsThatExistInTheWorld[locationInteger].get().setVisit();
+    currentLocation.get() = locationsThatExistInTheWorld[locationInteger];
+    //clockTower.setVisit();
+    //currentLocation.get() = clockTower;
+
+    //currentLocation.setVisit();
 }
+
+void Game::commandSetup() {
+    //commands.insert(make_pair("go", &Game::go));
+
+    //Help
+    commands["help"] = &Game::show_help;
+    commands["show_help"] = &Game::show_help;
+
+    commands["talk"] = &Game::talk;
+
+    commands["take"] = &Game::take;
+
+    commands["give"] = &Game::give;
+    commands["drop"] = &Game::give;
+
+    commands["go"] = &Game::go;
+    commands["move"] = &Game::go;
+
+    commands["inventory"] = &Game::inventory;
+    commands["show_items"] = &Game::show_help; //these do exactly the same thing... lol
+
+    commands["look"] = &Game::look;
+    commands["current_location"] = &Game::look;
+
+    commands["teleport"] = &Game::teleport;
+    commands["portal"] = &Game::teleport;
+
+    commands["make"] = &Game::make;
+
+    commands["meet"] = &Game::meet;
+
+    commands["dumb"] = &Game::dumb;
+
+    commands["quit"] = &Game::quit;
+}
+
 
 //Command methods
 
-void Game::show_help() {
+void Game::show_help(std::vector<std::string> target) {
+    std::cout << "\tgvzork Help Menu: " << std::endl << "\nActions - Commands" << std::endl;
+    std::cout << "Help - help, show_help" << std::endl << "Talk to NPCs - talk" << std::endl
+        << "Travel to other locaiton - go, move" << std::endl << "Get rid of item/feed the elf - give, drop"
+        << std::endl << "Show inventory - inventory, show_items" << std::endl << "Look around (show location prompt) - look, current_location"
+        << std::endl << "Use a portal/secret travel option - teleport, portal" << "craft iems (coffee) - make" << std::endl;
+}
 
+void Game::dumb(std::vector<std::string> target) {
+    std::cout << "\nInput something in the prompt, dumbass." << std::endl;
 }
 
 //Checks if the NPC is in the location, then runs through their dialogue if they're
 //in the same location as the character
-void Game::talk(string target) {
-    string npc = target;
+void Game::talk(std::vector<std::string> target) {
+    std::string npc = vector2String(target);
 
-    for (int i = 0; i < currentLocation.getNPCs().size(); i++) {
-        if (currentLocation.getNPCs()[i] == npc) {
-            NPC currentNPC = currentLocation.getNPCs()[i];
+    for (int i = 0; i < currentLocation.get().getNPCs().size(); i++) {
+        if (boost::iequals(currentLocation.get().getNPCs()[i].getName(), npc)) {
+            NPC currentNPC = currentLocation.get().getNPCs()[i];
+
+            std::cout << std::endl << currentNPC;
 
             do {
-                currentNPC.getCurrentNPCMessage();
+                std::cout << currentNPC.getCurrentNPCMessage() << std::endl;
             } while (currentNPC.getMessageNumber() != 0);
             return;
         }
     }
 
-    cout << target << " is not here right now... " << endl;
+    std::cout << npc << " is not here right now... " << std::endl;
 }
 
 //Shows NPC descriptions
-void Game::meet(vector<string> target) {
+void Game::meet(std::vector<std::string> target) {
     ///This will just take what's left of our vector, turn it *back* into a single string, and then compare this string against the names of the NPC's in the NPC vector
     //for the current location
-    string npc = vector2String(target);
+    std::string npc = vector2String(target);
 
-    for (int i = 0; i < currentLocation.getNPCs().size(); i++) {
-        if (currentLocation.getNPCs()[i].getName() == npc) {
-            cout << currentLocation.getNPCs()[i].getName() << " - " << currentLocation.getNPCs()[i].getDescription() << endl; //Success. Gives us the description
-            currentLocation.setVisit();
+    for (int i = 0; i < currentLocation.get().getNPCs().size(); i++) {
+        if (boost::iequals(currentLocation.get().getNPCs()[i].getName(), npc)) {
+            std::cout << currentLocation.get().getNPCs()[i].getName() << " - " << currentLocation.get().getNPCs()[i].getDescription() << std::endl; //Success. Gives us the description
+            currentLocation.get().setVisit();
             return; //No point in keepingg the loop going
         }
     }
     //Failure message.
-    cout << "It would seem that " << npc << " isn't here right now" << endl;
+    std::cout << "It would seem that " << npc << " isn't here right now" << std::endl;
 }
 
 //For putting items into your inventory
-void Game::take(vector<string> target) {
-    string item = vector2String(target);
+void Game::take(std::vector<std::string> target) {
+    std::string item = vector2String(target);
 
     //So first we need to check and see if the actual item exists in the location
-    for (int i = 0; i < currentLocation.getItems().size(); i++) {
+    for (int i = 0; i < currentLocation.get().getItems().size(); i++) {
 
-        if (currentLocation.getItems()[i].getName() == item) {
-            cout << "Attempting to pick up " << item << "..." << endl; //let them know that the game found it and what's going on
+        if (boost::iequals(currentLocation.get().getItems()[i].getName(), item)) {
+            std::cout << "Attempting to pick up " << item << "..." << std::endl; //let them know that the game found it and what's going on
 
             //Catchment for if this puts us over our weight-limit
-            if (currentLocation.getItems()[i].getWeight() + this->inventoryWeight > 30.0) {
-                cout << "Cannot pick up " << item << " as you will be overencumbered. Try dropping something first" << endl;
+            if (currentLocation.get().getItems()[i].getWeight() + this->inventoryWeight > 30.0) {
+                std::cout << "Cannot pick up " << item << " as you will be overencumbered. Try dropping something first" << std::endl;
             } else {
-                cout << "Item " << item << " added to inventory." << endl;
-                this->inventoryWeight += currentLocation.getItems()[i].getWeight();
-                playerItems.push_back(currentLocation.getItems()[i]); //gotta actually add the item to the inventory
-                currentLocation.takeItem(currentLocation.getItems()[i]); //and then we gotta remember to get rid of it from the world
+                std::cout << "Item " << item << " added to inventory." << std::endl;
+                this->inventoryWeight += currentLocation.get().getItems()[i].getWeight();
+                playerItems.push_back(currentLocation.get().getItems()[i]); //gotta actually add the item to the inventory
+                currentLocation.get().takeItem(currentLocation.get().getItems()[i]); //and then we gotta remember to get rid of it from the world
             }
             return;
         }
     }
+
+    std::cout << "Unable to pick up " << item << " as it is not here." << std::endl;
 }
 
 //This is a bit of a weird one. Basically, it's going to drop the item into the
@@ -344,21 +452,21 @@ void Game::take(vector<string> target) {
 //then it needs to check if the item is edible; and if it is then we need to destroy
 // the item and add it to the caloric consumption total for the elf, since hitting
 // a ceratin amount there is what triggers the win condition
-void Game::give(vector<string> target) {
-    string item = vector2String(target);
+void Game::give(std::vector<std::string> target) {
+    std::string item = vector2String(target);
 
     //First we need to check that the item is in our inventory
     for (int i = 0; i < playerItems.size(); i++) {
-        if (playerItems[i].getName() == item) {
+        if (boost::iequals(playerItems[i].getName(), item)) {
             Item item2Give = playerItems[i];
 
             //So here we've found the item. Now we need to check
-            if (currentLocation.getName() != "The Woods") {
+            if (currentLocation.get().getName() != "The Woods") {
                 //So here, we're baically doing take but in reverse: adding item to the world, then clearing it from our inventory.
                 this->inventoryWeight -= item2Give.getWeight();
-                currentLocation.addItem(item2Give);
+                currentLocation.get().addItem(item2Give);
                 this->playerItems.erase(playerItems.begin() + i);
-                cout << item2Give.getName() << "dropped in" << currentLocation.getName() << "." << endl;
+                std::cout << item2Give.getName() << "dropped in " << currentLocation.get().getName() << "." << std::endl;
                 return; //and now there's nothing left to do so we're going to exit this method
             } else {
                 //So this is what's going to happen if we're in the woods. Basically we need a condition that's kind of like the other one.
@@ -370,65 +478,110 @@ void Game::give(vector<string> target) {
 
                 //You know what? We're just going to have one character or maybe 2 out in the woods and we're just going to have it so that elf is first in the NPC vector in order to make this
                 //Easier on ourselves
-                NPC elf = currentLocation.getNPCs()[0];
+                NPC elf = currentLocation.get().getNPCs()[0];
 
                 if (item2Give.getCalories() == 0.0) {
-                    cout << elf << endl << "You dick. You need to give me FOOD if you want me to save your school." << endl
+                    std::cout << elf << std::endl << "You dick. You need to give me FOOD if you want me to save your school." << std::endl
                         << "This " << item << " isn't food. Just for this, I'm going to punish you for your insolence and teleport you somewhere random."
-                        << endl << "Enjoy." << endl << endl << "You have been teleported" << endl;
+                        << std::endl << "Enjoy." << std::endl << std::endl << "You have been teleported" << std::endl;
 
                     currentLocation = locationsThatExistInTheWorld[rand() % locationsThatExistInTheWorld.size()];
+                    return;
+
+                } else {
+                    this->inventoryWeight -= item2Give.getWeight();
+                    caloriesFedToTheElf += item2Give.getCalories();
+                    this->playerItems.erase(playerItems.begin() + i);
+                    std::cout << "You gave " << item2Give.getName() << " to the elf." << std::endl
+                        << "The elf is now " << item2Give.getCalories() << " fuller.\nGood job" << std::endl
+                        << "You have now fed the elf " << caloriesFedToTheElf << " calories.\n" << std::endl;
+                    return;
                 }
             }
         }
     }
+
+    std::cout << "I'm not sure what you are trying to give the elf. But you don't have that in your inventory.\n Probably better you don't try that again" << std::endl;
 }
 
-void Game::go(vector<string> target) {
-    string destination = vector2String(target);
+//So now we have to rewrite this to handle our reference_wrapper<Location> objects... fun
+void Game::go(std::vector<std::string> target) {
+    std::string destination = vector2String(target);
     Direction d;
 
     //Catchment for if they say a direction
+    // for (int i = 0; i < 11; i++) {
+    //     if (DirectionNames[i] == destination) {
+    //         d = (Direction) i;  //since we used enums for direction, we can cast an inte as enum and travel that way
+    //         //cout << d << endl;
+    //         if (d >= 8) {
+    //             //catchment for if someone tries to travel through the portal or secret location through conventional menas
+    //             cout << "You can't travel to that location by conventional means... sorry pal" << endl;
+    //             return;
+    //         }
+    //         //Catchment for if there's nothing in a given direction
+    //         if (currentLocation.getNeighbors().find(d) == currentLocation.getNeighbors().end()) {
+    //             cout << "There's nothing for you in that direction. Nothing you'd want to see anyways." << endl;
+    //             return;
+    //         } else {
+    //             //Success
+    //             string newLoc = currentLocation.getNeighbors().at(d).getName();
+    //             for (int j = 0; j < locationsThatExistInTheWorld.size(); j++)
+    //                 currentLocation = (locationsThatExistInTheWorld[j]. == newLoc) ? locationsThatExistInTheWorld[j] : currentLocation;
+    //             currentLocation.setVisit(); //Makes it so the place has been visited
+    //             look({}); //Shows us what's at the new location
+    //             return;
+    //         }
+    //     }
+    // }
+    // cout << "Invalid direction detected. You can't go to " << destination << "." << endl;
+
     for (int i = 0; i < 11; i++) {
-        if (DirectionNames[i] == destination) {
-            d = (Direction) i;  //since we used enums for direction, we can cast an inte as enum and travel that way
-            //cout << d << endl;
-            if (d >= 8) {
-                //catchment for if someone tries to travel through the portal or secret location through conventional menas
-                cout << "You can't travel to that location by conventional means... sorry pal" << endl;
+        //Catchment for when we find a direction match
+        if (boost::iequals(destination, DirectionNames[i])) {
+
+            //Catchment for the fact that we want to not be able to use portals and shit via go, despite the fact that they're
+            //in the direction map
+            if (i >= 8) {
+                std::cout << "You cannot travel via " << DirectionNames[i] << " by convetional means. Sorry." << std::endl;
                 return;
             }
-            //Catchment for if there's nothing in a given direction
-            if (currentLocation.getNeighbors().find(d) == currentLocation.getNeighbors().end()) {
-                cout << "There's nothing for you in that direction. Nothing you'd want to see anyways." << endl;
-                return;
-            } else {
-                //Success
-                string newLoc = currentLocation.getNeighbors().at(d).getName();
-                for (int j = 0; j < locationsThatExistInTheWorld.size(); j++)
-                    currentLocation = (locationsThatExistInTheWorld[j].getName() == newLoc) ? locationsThatExistInTheWorld[j] : currentLocation;
-                currentLocation.setVisit(); //Makes it so the place has been visited
-                look({}); //Shows us what's at the new location
+
+            d = (Direction) i;
+
+            //Catchment for if nothing exists in that direction
+            if (currentLocation.get().getNeighbors().count(d) < 1) {
+                std::cout << "Nothing exists " << DirectionNames[d] << " of here. Nothing you would want to see anyways" << std::endl;
                 return;
             }
+            std::cout << "Passed bad direction catchment" << std::endl;
+            //cout << currentLocation.get().getNeighbors().at(d).get().getName() << endl;
+
+            //So I guess this is where our success shit would happen
+            //cout << currentLocation.getNeighbors().at(d) << endl;
+            currentLocation.get().getNeighbors().at(d).get().setVisit();
+            currentLocation = currentLocation.get().getNeighbors().at(d); //this should be all we need now that we're doing reference wrappers
+            //currentLocation.setVisit();
+            look({});
+            return;
         }
     }
-    cout << "Invalid direction detected. You can't go to " << destination << "." << endl;
+    std::cout << "Invalid direction detected. You cannot travel " << destination << "." << std::endl;
 
 }
 
-void Game::show_items(vector<string> target) {
+void Game::show_items(std::vector<std::string> target) {
     //Somehow forgot this was a method. And im lazy. So I'm just going to call the other inventory method
     inventory({});
 }
 
-void Game::look(vector<string> target) {
+void Game::look(std::vector<std::string> target) {
     //Apparently I made the same mistake with look.
-    cout << currentLocation;
+    std::cout << currentLocation.get();
 }
 
-void Game::quit(vector<string> target) {
-    cout << "You failed to save the school." << endl << "Bettter luck next time, nerd" << endl;
+void Game::quit(std::vector<std::string> target) {
+    std::cout << "You failed to save the school." << std::endl << "Bettter luck next time, nerd" << std::endl;
     exit(0);
 }
 
@@ -436,7 +589,41 @@ void Game::quit(vector<string> target) {
 
 //This one will check for a portal between the current location and the target one
 //and that will let the player teleport if... if it's there
-void Game::teleport(vector<string> target) {
+void Game::teleport(std::vector<std::string> target) {
+    std::string teleportal= vector2String(target);
+
+    Direction d;
+
+    //Ok, so here, we need to do things a little differently. I think similar to how our display neighbors method works
+    // basically, we're going to pass the name of the location on the other side of the "portal", then we need to check that
+    // that location exists as a neighbor to the current one AND if it's direction key is greater than or equal to 8... seems easy
+    // enough since we wrote it out first.
+
+    for (int i = 8; i < 11; i++) {
+
+        //iterating through conventional means wasn't working here. So we're going to get really dumb with it
+        //Checking to see if something exists at a given "secret" location on the map
+        if (currentLocation.get().getNeighbors().count((Direction) i) == 1) {
+
+            if (boost::iequals(currentLocation.get().getNeighbors().at((Direction) i).get().getName(), teleportal)) {
+                std::cout << "Teleporting to " << teleportal << "..." << std::endl << std::endl;
+                currentLocation.get().getNeighbors().at((Direction) i).get().setVisit();
+                currentLocation = currentLocation.get().getNeighbors().at((Direction) i);
+                look({});
+                return;
+            }
+        }
+    }
+
+   //I guess let's do a catchment for if the place exists but you can't teleport to there from here
+   for (int j = 0; j < locationsThatExistInTheWorld.size(); j++)
+       if (boost::iequals(locationsThatExistInTheWorld[j].get().getName(), teleportal)) {
+           std::cout << "You can not teleport to " << teleportal << " from here." << std::endl;
+           return;
+    }
+
+    //And then a catchment for if the place just straight up doesn't exist
+    std::cout << "I am not sure where you are trying to go to. Be sure to type 'teleport' followed by the location name that you are trying to go to." << std::endl;
 
 }
 
@@ -444,40 +631,45 @@ void Game::teleport(vector<string> target) {
 //
 // }
 
-void Game::inventory(vector<string> target) {
+void Game::inventory(std::vector<std::string> target) {
     for (Item item : playerItems)
-        cout << item;
-    cout << "Total weight: " << inventoryWeight << endl;
+        std::cout << item;
+    std::cout << "Total weight: " << inventoryWeight << std::endl;
 }
 
-void Game::make(vector<string> target) {
+void Game::make(std::vector<std::string> target) {
     //this could theoretically be build out a little more if we wanted to. But I'm going to use it to make coffee
-    string command = vector2String(target);
+    std::string command = vector2String(target);
 
-    if (command == "coffee") {
+    if (boost::iequals(command, "coffee")) {
         bool hasWatter = false, hasGrounds = false, hasCup = false;
-        if (currentLocation.getName() != "Kirkhoff hall") {
-            cout << "Not in Kirkhoff. Can't make coffee." << endl;
+        if (currentLocation.get().getName() != "Kirkhoff hall") {
+            std::cout << "Not in Kirkhoff. Can't make coffee." << std::endl;
             return;
         }
         for (int i = 0; i < playerItems.size(); i++) {
-            hasWatter = (playerItems[i].getName() == "Water bottle" || playerItems[i].getName() =="Water") ? true : hasWatter;
-            hasGrounds = (playerItems[i].getName() == "Coffee grounds") ? true : hasGrounds;
-            hasCup = (playerItems[i].getName() == "Coffee Mug") ? true : hasCup;
+            hasWatter = (boost::iequals(playerItems[i].getName(), "Water bottle")) ? true : hasWatter;
+            hasGrounds = (boost::iequals(playerItems[i].getName(), "Coffee grounds")) ? true : hasGrounds;
+            hasCup = (boost::iequals(playerItems[i].getName(), "Coffee Mug")) ? true : hasCup;
         }
 
-        if (hasWatter && hasGrounds && hasCup)
+        if (hasWatter && hasGrounds && hasCup) {
+            playerItems.erase(std::remove(playerItems.begin(), playerItems.end(), "Coffee grounds"));
+            playerItems.erase(std::remove(playerItems.begin(), playerItems.end(), "Coffee Mug"));
+            playerItems.erase(std::remove(playerItems.begin(), playerItems.end(), "Water Bottle"));
             playerItems.push_back(Item("Coffee", "Refreshing, and it wakes you up. Guarunteed to make you poop in 20 minutes or less", 0.6, 250));
+            std::cout << "Coffee has been added to your inventory... I hope it was worth it." << std::endl;
+        }
         return;
     }
 
-    cout << "Unrecognized target for making " << command << ". Please try something else." << endl;
+    std::cout << "Unrecognized target for making " << command << ". Please try something else." << std::endl;
 }
 
 //This is just a helper function because I didn't feel like rewriting this same bit of code 8 times.
-string Game::vector2String(vector<string> target) {
-    string str = accumulate(target.begin(), target.end(), string(),
-        [](const string& a, const string& b) -> string {
+std::string Game::vector2String(std::vector<std::string> target) {
+    std::string str = accumulate(target.begin(), target.end(), std::string(),
+        [](const std::string& a, const std::string& b) -> std::string {
             return a + (a.length() > 0 ?  " " : "") + b;
     });
     return str;
