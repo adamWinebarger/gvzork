@@ -90,14 +90,14 @@ Game::Game()
 
     srand(time(0)); //For our RNG's
     doSetup();
-    commandSetup();
+    //commandSetup();
 
 }
 
 void Game::doSetup() {
     //woodring = NPC("Prof. Woodring", "The Computer Science Professor");
     //Items
-    std::map<std::string, Item> inGameItems = itemSetup();
+    std::map<std::string, Item> inGameItems = itemSetup(); //giving us a map of items that we'll be able to pass to our location setup for easy setup
 
     //NPC
     std::map<std::string, NPC> npcs = NPCSetup();
@@ -119,7 +119,7 @@ void Game::doSetup() {
 void Game::playGame() {
 
     std::cout << "\tGVZork" << std::endl;
-    look({});
+    look({}); //first look has to be called somewhere. May as well be here since I don't want it being called after EVERY command
     //cout << endl;
     std::string input = "banana";
     std::vector<std::string> comp;
@@ -189,6 +189,9 @@ std::map<std::string, Item> Game::itemSetup() {
 //Our helper method for setting up the NPC's
 std::map<std::string, NPC> Game::NPCSetup() {
     std::map<std::string, NPC> npcList = {};
+    //Since we included the dialogue shit as an optional parameter in our constructor (default value specified)
+    //we can just include the dialogues in during the creation of our NPC objects. Saves us a few lines here and there
+    //Might look kind of ugly if you're not used seeing something like this.
     npcList.insert({"Woodring", NPC("Prof. Woodring", "The CS prof from North Carolina",
         {"Howdy, I'm professor Woodring", "I'm from somewhere in North Carolina, but the developers didn't know where specifically from in the state",
             "But that doesn't matter because I'm here to give you the rundown about what's going on here right now.",
@@ -243,37 +246,45 @@ std::map<std::string, NPC> Game::NPCSetup() {
     npcList.insert({"NPC5", NPC("NPC5","Tall",{"sup", "How it going"})});
 
 
-    return npcList;
+    return npcList; //we're going to want to pass this to location setup so a non-void method was the play here
 }
 
 //This is how we'll be getting the locations into the world, as well as how we'll determine the currentLocation of the character
 void Game::locationSetup(std::map<std::string, NPC> npcList, std::map<std::string, Item> itemList) {
     //First we should probably set up our locations one at a time
     theWoods = Location("The Woods", "It's the woods behind Grand Valley's campus. Apparently there's a magical elf that live here. So that's pretty neat",
-        {npcList.at("MagicalElf"), npcList.at("Guy")}, {itemList.at("Sword"),
-            itemList.at("CoffeeMug2"), itemList.at("Rock")
-        });
+        {npcList.at("MagicalElf"), npcList.at("Guy")},
+        {itemList.at("Sword"), itemList.at("CoffeeMug2"), itemList.at("Rock")
+    });
 
     mackHall = Location("Mack hall", "The computer science building. Just don't think about stealing any computers for the lab",
-        {npcList.at("Woodring"), npcList.at("NPC2"), npcList.at("NPC5")}, {itemList.at("GranolaBar"), itemList.at("WaterBottle"), itemList.at("Banana"), itemList.at("laptop")}
+        {npcList.at("Woodring"), npcList.at("NPC2"), npcList.at("NPC5")},
+        {itemList.at("GranolaBar"), itemList.at("WaterBottle"), itemList.at("Banana"), itemList.at("laptop")}
     );
 
     padnos = Location("Padnos Hall", "Whole lotta science going on here. This would be a great starter location... IF WE HAD ONE!",
-        {npcList.at("padnosProf"), npcList.at("NPC5")}, {itemList.at("Mushroom"), itemList.at("MRE"), itemList.at("laptop")}
+        {npcList.at("padnosProf"), npcList.at("NPC5")},
+        {itemList.at("Mushroom"), itemList.at("MRE"), itemList.at("laptop")}
     );
 
     clockTower = Location("The Clock Tower", "Anyone can rent this place out, apparently... Looks like today it's the abortion crazies again.",
-        {npcList.at("abc1"), npcList.at("abc2"), npcList.at("abc3")}, {itemList.at("WeirdSauce")}
+        {npcList.at("abc1"),
+        npcList.at("abc2"), npcList.at("abc3")}, {itemList.at("WeirdSauce")}
     );
 
     kirkhoff = Location("Kirkhoff hall", "Home of the vet's center and Panda express. Also, there's a pretty good coffee maker here",
-    {}, {itemList.at("CoffeeGrounds"), itemList.at("MRE"), itemList.at("Rock")}
+        {}, //No NPC's for kirkhoff. Still gotta specify that though so we can put our items in
+        {itemList.at("CoffeeGrounds"), itemList.at("MRE"), itemList.at("Rock")}
     );
 
-    library = Location("The Library", "Probably the weirdest library you'll ever see in your life", {}, {itemList.at("WaterBottle"), itemList.at("Banana"), itemList.at("GranolaBar")});
+    library = Location("The Library", "Probably the weirdest library you'll ever see in your life",
+        {},
+        {itemList.at("WaterBottle"), itemList.at("Banana"), itemList.at("GranolaBar")
+    });
 
     superior = Location("Superior hall", "A lot of art stuff happens here. Pretty sure one of the devs has a photography class in here",
-    {npcList.at("artProf"), npcList.at("NPC5")}, {itemList.at("Banana"), itemList.at("laptop"), itemList.at("GranolaBar")}
+        {npcList.at("artProf"), npcList.at("NPC5")}, {itemList.at("Banana"), itemList.at("laptop"), itemList.at("GranolaBar")}
+        //Since items had a default value, we can just *not* declare it here.
     );
 
     footBridge = Location("Footbridge", "The pedestrian bridge over the creek",
@@ -365,7 +376,7 @@ void Game::commandSetup() {
     commands["move"] = &Game::go;
 
     commands["inventory"] = &Game::inventory;
-    commands["show_items"] = &Game::inventory; //these do exactly the same thing... lol
+    commands["show_items"] = &Game::inventory;
     commands["items"] = &Game::inventory;
 
     commands["look"] = &Game::look;
@@ -508,7 +519,7 @@ void Game::give(std::vector<std::string> target) {
 
                 //You know what? We're just going to have one character or maybe 2 out in the woods and we're just going to have it so that elf is first in the NPC vector in order to make this
                 //Easier on ourselves
-                NPC elf = currentLocation.get().getNPCs()[0];
+                NPC elf = currentLocation.get().getNPCs()[0]; //there are better ways to do this. But fuck it.
 
                 if (item2Give.getCalories() == 0.0) {
                     std::cout << elf << std::endl << "You dick. You need to give me FOOD if you want me to save your school." << std::endl
@@ -566,33 +577,6 @@ void Game::go(std::vector<std::string> target) {
     std::string destination = vector2String(target);
     Direction d;
 
-    //Catchment for if they say a direction
-    // for (int i = 0; i < 11; i++) {
-    //     if (DirectionNames[i] == destination) {
-    //         d = (Direction) i;  //since we used enums for direction, we can cast an inte as enum and travel that way
-    //         //cout << d << endl;
-    //         if (d >= 8) {
-    //             //catchment for if someone tries to travel through the portal or secret location through conventional menas
-    //             cout << "You can't travel to that location by conventional means... sorry pal" << endl;
-    //             return;
-    //         }
-    //         //Catchment for if there's nothing in a given direction
-    //         if (currentLocation.getNeighbors().find(d) == currentLocation.getNeighbors().end()) {
-    //             cout << "There's nothing for you in that direction. Nothing you'd want to see anyways." << endl;
-    //             return;
-    //         } else {
-    //             //Success
-    //             string newLoc = currentLocation.getNeighbors().at(d).getName();
-    //             for (int j = 0; j < locationsThatExistInTheWorld.size(); j++)
-    //                 currentLocation = (locationsThatExistInTheWorld[j]. == newLoc) ? locationsThatExistInTheWorld[j] : currentLocation;
-    //             currentLocation.setVisit(); //Makes it so the place has been visited
-    //             look({}); //Shows us what's at the new location
-    //             return;
-    //         }
-    //     }
-    // }
-    // cout << "Invalid direction detected. You can't go to " << destination << "." << endl;
-
     for (int i = 0; i < 11; i++) {
         //Catchment for when we find a direction match
         if (boost::iequals(destination, DirectionNames[i])) {
@@ -633,7 +617,6 @@ void Game::show_items(std::vector<std::string> target) {
 }
 
 void Game::look(std::vector<std::string> target) {
-    //Apparently I made the same mistake with look.
     std::cout << currentLocation.get();
 }
 
@@ -648,8 +631,6 @@ void Game::quit(std::vector<std::string> target) {
 //and that will let the player teleport if... if it's there
 void Game::teleport(std::vector<std::string> target) {
     std::string teleportal= vector2String(target);
-
-    Direction d;
 
     //Ok, so here, we need to do things a little differently. I think similar to how our display neighbors method works
     // basically, we're going to pass the name of the location on the other side of the "portal", then we need to check that
@@ -699,6 +680,9 @@ void Game::make(std::vector<std::string> target) {
     std::string command = vector2String(target);
 
     if (boost::iequals(command, "coffee")) {
+        //Basically, the catch is if they want to make coffee, they have to be in kirkhoff (Location)
+        //and have 3 specific items in their inventory, at which point those 3 items get destroyed and
+        // the player is given a coffee
         bool hasWatter = false, hasGrounds = false, hasCup = false;
         if (currentLocation.get().getName() != "Kirkhoff hall") {
             std::cout << "Not in Kirkhoff. Can't make coffee." << std::endl;
@@ -711,6 +695,8 @@ void Game::make(std::vector<std::string> target) {
         }
 
         if (hasWatter && hasGrounds && hasCup) {
+            //Getting rid of our 3 items used to make the coffee, followed by adding coffee to the inventory.
+            //This crafting system is not scalable at all and would Probably be it's own standalone thing if I had to build it out
             playerItems.erase(std::remove(playerItems.begin(), playerItems.end(), "Coffee grounds"));
             playerItems.erase(std::remove(playerItems.begin(), playerItems.end(), "Coffee Mug"));
             playerItems.erase(std::remove(playerItems.begin(), playerItems.end(), "Water Bottle"));
@@ -719,7 +705,7 @@ void Game::make(std::vector<std::string> target) {
         }
         return;
     }
-
+    //last possibility: whatever they said they wanted to make isn't craftable/doesn't exist
     std::cout << "Unrecognized target for making " << command << ". Please try something else." << std::endl;
 }
 
