@@ -10,6 +10,8 @@
 #include<cstdlib>
 #include <functional>
 #include <cstring>
+#include <ctime>
+#include <chrono>
 
 #include <bits/stdc++.h>
 #include <boost/algorithm/string.hpp>
@@ -68,6 +70,7 @@ public:
     void show_items(std::vector<std::string> target);
     void look(std::vector<std::string> target);
     void quit(std::vector<std::string> target);
+    void eat(std::vector<std::string> target);
 
     //Bonus methods
     void teleport(std::vector<std::string> target);
@@ -342,6 +345,7 @@ void Game::commandSetup() {
 
     commands["talk"] = &Game::talk;
 
+    commands["grab"] = &Game::take;
     commands["take"] = &Game::take;
 
     commands["give"] = &Game::give;
@@ -351,10 +355,13 @@ void Game::commandSetup() {
     commands["move"] = &Game::go;
 
     commands["inventory"] = &Game::inventory;
-    commands["show_items"] = &Game::show_help; //these do exactly the same thing... lol
+    commands["show_items"] = &Game::inventory; //these do exactly the same thing... lol
+    commands["items"] = &Game::inventory;
 
     commands["look"] = &Game::look;
     commands["current_location"] = &Game::look;
+    commands["look_around"] = &Game::look;
+    commands["ls"] = &Game::look;
 
     commands["teleport"] = &Game::teleport;
     commands["portal"] = &Game::teleport;
@@ -362,6 +369,8 @@ void Game::commandSetup() {
     commands["make"] = &Game::make;
 
     commands["meet"] = &Game::meet;
+
+    commands["eat"] = &Game::eat;
 
     commands["dumb"] = &Game::dumb;
 
@@ -374,9 +383,20 @@ void Game::commandSetup() {
 void Game::show_help(std::vector<std::string> target) {
     std::cout << "\tgvzork Help Menu: " << std::endl << "\nActions - Commands" << std::endl;
     std::cout << "Help - help, show_help" << std::endl << "Talk to NPCs - talk" << std::endl
+        << "Pick up items - grab, take" << std::endl << "Eat food - eat" << std::endl
         << "Travel to other locaiton - go, move" << std::endl << "Get rid of item/feed the elf - give, drop"
-        << std::endl << "Show inventory - inventory, show_items" << std::endl << "Look around (show location prompt) - look, current_location"
+        << std::endl << "Show inventory - inventory, show_items, items" << std::endl
+        << "Look around (show location prompt) - look, current_location, look_around, ls"
         << std::endl << "Use a portal/secret travel option - teleport, portal" << "craft iems (coffee) - make" << std::endl;
+
+    //Still need to put the timestamp in here.
+    auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    struct tm* timeinfo = localtime(&timenow); //fuck it. We're using a pointer here because this seems like the easiest way to print time the way I want to do that
+    //It's technically on the stack so it doesn't count, right?
+    char timestr[80];
+    strftime(timestr, 80, "Time: %T", timeinfo);
+
+    std::cout << "Current time " << timestr << "." << std::endl;
 }
 
 void Game::dumb(std::vector<std::string> target) {
@@ -502,6 +522,33 @@ void Game::give(std::vector<std::string> target) {
     }
 
     std::cout << "I'm not sure what you are trying to give the elf. But you don't have that in your inventory.\n Probably better you don't try that again" << std::endl;
+}
+
+void Game::eat(std::vector<std::string> target) {
+    std::string item = vector2String(target);
+
+    //So we're going to go something similar to what we did with giving the elf food. But make is so that we can eat
+    // food items as well. We won't get anything from it. But it will be funny.
+    for (int i = 0; i < playerItems.size(); i++) {
+
+        //first catch: we find that the item exists in our inventory
+        if (boost::iequals(item, playerItems[i].getName())) {
+
+            //first catch: we find out that the item isn't edible (calories = 0)
+            if (playerItems[i].getCalories() == 0) {
+                std::cout << "Yeah... you can't eat that" << std:: endl;
+                return;
+            }
+
+            //next catch: it's edible
+            playerItems.erase(playerItems.begin() + i);
+            std::cout << "You have eaten the " << item << "...\nYou don't get anything for eating items in this game. But... you did it.\nSo... good job, I guess"
+                << std::endl;
+            return;
+        }
+    }
+
+    std::cout << "You can't eat '" << item << "' as you don't have that in your inventory." << std::endl;
 }
 
 //So now we have to rewrite this to handle our reference_wrapper<Location> objects... fun

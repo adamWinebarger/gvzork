@@ -3,14 +3,22 @@
 
 
 #include <iostream>
+//#include <functional>
+#include <algorithm>
+#include <numeric>
 #include <vector>
 #include <map>
 #include <string>
 #include <exception>
-#include <functional>
-#include <boost/algorithm/string.hpp>
 #include <bits/stdc++.h>
-#include <boost/algorithm/string/split.hpp> // Include for boost::split
+#include<cstdlib>
+#include <functional>
+#include <cstring>
+#include <ctime>
+#include <chrono>
+
+#include <bits/stdc++.h>
+#include <boost/algorithm/string.hpp>
 
 #include "item.h"
 #include "location.hpp"
@@ -61,6 +69,7 @@ public:
     void look(std::vector<std::string> target);
     void quit(std::vector<std::string> target);
     void dumb(std::vector<std::string> target);
+    void eat(std::vector<std::string> target);
 
     //Apparently we need two additional commands.
     void teleport(std::vector<std::string> target);
