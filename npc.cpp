@@ -46,7 +46,7 @@ NPC::NPC(std::string name, std::string description) {
 std::string NPC::getString(std::string which) {
     if (which == "name")
         return this->name;
-    else if (which == "description")
+    else if (which == "description") //I actually kind of regret doing this this way but we haven't actually used it... so...
         return this->description;
     else
         return "I'm not sure what you want me to give you";
